@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="../css/oss/bootstrap.min.css" type="text/css">
+    <title>Youtube Chat Overlay</title>
+  </head>
+  <body style="width: 400px;">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col header alert alert-info">
+          Youtube Chat Overlay
+        </div>  
+      </div>
+      <div class="row">
+        <div id="message" class="col alert alert-light mb-0" style="display: none;">
+          <p class="text-center">This extension is currently unavailable.</p>
+        </div>
+      </div>
+      <div id="content" class="row" style="display: none;">
+        <div class="col">
+          <div class="form-group">
+            <label for="range_top">Top：<span id="text_top"></span></label>
+            <input type="range" class="form-control-range" id="range_top" min="0" max="2160" value="100" step="10" />
+          </div>
+          <div class="form-group">
+            <label for="range_left">Left：<span id="text_left"></span></label>
+            <input type="range" class="form-control-range" id="range_left" min="0" max="3840" value="10" step="10" />
+          </div>
+          <div class="form-group">
+            <label for="range_opacity">Opacity：<span id="text_opacity"></span></label>
+            <input type="range" class="form-control-range" id="range_opacity" min="0.1" max="1" value="0.4" step="0.1" />
+          </div>
+          <div class="form-group">
+            <button id="btn_reset" type="reset" class="btn btn-link">位置をリセット</button>
+          </div>
+          <div class="form-group">
+            <button id="btn_show" type="button" class="btn btn-primary btn-block">チャットをオーバーレイ表示</button>
+            <button id="btn_revart" type="button" class="btn btn-secondary btn-block" style="display:none;">チャットを戻す</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../js/oss/jquery-3.5.1.slim.min.js"></script>
+    <script src="../js/oss/popper.js"></script>
+    <script src="../js/oss/bootstrap.min.js"></script>
+    <script src="../js/popup.js"></script>
+  </body>
+</html>

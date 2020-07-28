@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "Youtube Chat Overlay",
+  "version": "1.0",
+  "description": "Youtubeのシアターモードでチャットをオーバーレイ表示する。",
+  "browser_action": {
+    "default_popup": "uis/popup.html",
+    "default_icon": "images/icon_32.png"
+  },
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "icons" : {
+    "48": "images/icon_48.png",
+    "128": "images/icon_128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.youtube.com/*"
+      ],
+      "js": ["js/oss/jquery-3.5.1.slim.min.js", "js/content.js"],
+      "css": ["css/style.css"]
+    }
+  ]
+}
