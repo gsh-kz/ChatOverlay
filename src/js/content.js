@@ -1,3 +1,5 @@
+import '../scss/content.scss';
+import jQuery from 'jquery';
 
 var ycoContent = ycoContent || {};
 
