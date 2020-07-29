@@ -1,3 +1,6 @@
+import '../scss/popup.scss';
+import jQuery from 'jquery';
+import 'bootstrap';
 
 var ycoPopup = ycoPopup || {};
 
