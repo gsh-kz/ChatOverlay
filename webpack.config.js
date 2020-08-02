@@ -1,8 +1,6 @@
 const MODE = "development";
 const enabledSourceMap = MODE === "development";
 
-const path = require('path');
-
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const webpack = require('webpack');
@@ -11,7 +9,8 @@ module.exports = {
   mode: MODE,
   entry: {
     popup: './src/js/popup.js',
-    content: './src/js/content.js'
+    content: './src/js/content.js',
+    background: './src/js/background.js'
   },
   output: {
     path: __dirname + '/plugin',

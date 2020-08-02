@@ -2,40 +2,55 @@ import '../scss/popup.scss';
 import jQuery from 'jquery';
 import 'bootstrap';
 
+const status = {
+  VISIBLE: 1,
+  HIDDEN: 0,
+  NONE: -1
+};
+
 var ycoPopup = ycoPopup || {};
 
 ycoPopup = (function() {
-  var _state = {
+  let _state = {
     left: 10,
     top: 100,
     opacity: 0.4,
     visible: false
   };
-  var _visible = function(visibled) {
+  let _visible = function(visibled) {
     _state.visible = visibled;
   }
-  var _updateComponent = function(visibled) {
+  let _updateComponent = function(visibled) {
     if (visibled != undefined) {
       _visible(visibled);
+      _disabled(visibled === status.NONE);
     }
-    $('#range_left').val(_state.left);
     $('#text_left').text(_state.left + 'px');
+    $('#range_left').val(_state.left);
 
-    $('#range_top').val(_state.top);
     $('#text_top').text(_state.top + 'px');
+    $('#range_top').val(_state.top);
     
-    $('#range_opacity').val(_state.opacity);
     $('#text_opacity').text(_state.opacity);
+    $('#range_opacity').val(_state.opacity);
     
-    if (_state.visible) {
+    if (_state.visible === status.VISIBLE) {
       $('#btn_show').hide();
       $('#btn_revart').show();
-    } else {
+    } else if (_state.visible === status.HIDDEN) {
       $('#btn_show').show();
       $('#btn_revart').hide();
     }
   }
-  var _initialize = function() {
+  let _disabled = function(disabled) {
+    $('#range_left').prop('disabled', disabled);
+    $('#range_top').prop('disabled', disabled);
+    $('#range_opacity').prop('disabled', disabled);
+    $('#btn_show').prop('disabled', disabled);
+    $('#btn_revart').prop('disabled', disabled);
+    $('#btn_reset').prop('disabled', disabled);
+  }
+  let _initialize = function() {
     chrome.storage.local.get(_state, function(items){
       $.extend(_state, items);
     });
@@ -52,7 +67,7 @@ ycoPopup = (function() {
       });
     });
   }
-  var _updateState = function(data) {
+  let _updateState = function(data) {
     $.extend(_state, data);
     _updateComponent();
     chrome.storage.local.set(_state, function(){});
@@ -67,6 +82,7 @@ ycoPopup = (function() {
 
 $(function() {
   ycoPopup.initialize();
+
   $('#btn_show').on('click', function(e) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
       var params = $.extend({}, ycoPopup.state, {action: 'show'});
