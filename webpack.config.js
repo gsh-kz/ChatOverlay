@@ -1,7 +1,7 @@
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
-const webpack = require('webpack');
+//const webpack = require('webpack');
 
 module.exports = (env, options) => {
   const enabledSourceMap = options.mode === 'development';
@@ -41,22 +41,17 @@ module.exports = (env, options) => {
               loader: 'css-loader',
               options: {
                 url: false,
-                // sourceMap: enabledSourceMap,
                 importLoaders: 2
               }
             },
             {
               loader: 'postcss-loader',
               options: {
-                // sourceMap: enabledSourceMap,
                 plugins: () => [require('autoprefixer')]
               }
             },
             {
-              loader: 'sass-loader',
-              // options: {
-              //   sourceMap: enabledSourceMap
-              // }
+              loader: 'sass-loader'
             }
           ]
         }
@@ -66,7 +61,7 @@ module.exports = (env, options) => {
       new MiniCssExtractPlugin({
         filename: 'css/[name].css'
       }),
-      new webpack.ProvidePlugin({$: 'jquery'})
+//      new webpack.ProvidePlugin({$: 'jquery'})
     ],
     devtool: enabledSourceMap === true ? 'source-map' : false
   }
