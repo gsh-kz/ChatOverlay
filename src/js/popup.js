@@ -1,91 +1,77 @@
 import '../scss/popup.scss';
-import jQuery from 'jquery';
-import 'bootstrap';
 
-const status = {
-  VISIBLE: 1,
-  HIDDEN: 0,
-  NONE: -1
-};
+import {overlayState, ChatState} from './modules.js';
 
 var ycoPopup = ycoPopup || {};
 
 ycoPopup = (function() {
-  let _state = {
-    left: 10,
-    top: 100,
-    opacity: 0.4,
-    visible: false
-  };
-  let _visible = function(visibled) {
-    _state.visible = visibled;
-  }
+  let _state = new ChatState();
   let _updateComponent = function(visibled) {
     if (visibled != undefined) {
-      _visible(visibled);
-      _disabled(visibled === status.NONE);
+      _disabled(visibled === overlayState.NONE);
     }
-    $('#text_left').text(_state.left + 'px');
-    $('#range_left').val(_state.left);
+    document.getElementById('text_left').textContent = _state.left + 'px';
+    document.getElementById('range_left').value = _state.left;
 
-    $('#text_top').text(_state.top + 'px');
-    $('#range_top').val(_state.top);
+    document.getElementById('text_top').textContent = _state.top + 'px';
+    document.getElementById('range_top').value = _state.top;
     
-    $('#text_opacity').text(_state.opacity);
-    $('#range_opacity').val(_state.opacity);
+    document.getElementById('text_opacity').textContent = _state.opacity + 'px';
+    document.getElementById('range_opacity').value = _state.opacity;
     
-    if (_state.visible === status.VISIBLE) {
-      $('#btn_show').hide();
-      $('#btn_revart').show();
-    } else if (_state.visible === status.HIDDEN) {
-      $('#btn_show').show();
-      $('#btn_revart').hide();
+    if (visibled === overlayState.VISIBLE) {
+      document.getElementById('btn_show').style.display = 'none';
+      document.getElementById('btn_revart').style.display = 'block';
+    } else if (visibled === overlayState.HIDDEN) {
+      document.getElementById('btn_show').style.display = 'block';
+      document.getElementById('btn_revart').style.display = 'none';
     }
   }
   let _disabled = function(disabled) {
-    $('#range_left').prop('disabled', disabled);
-    $('#range_top').prop('disabled', disabled);
-    $('#range_opacity').prop('disabled', disabled);
-    $('#btn_show').prop('disabled', disabled);
-    $('#btn_revart').prop('disabled', disabled);
-    $('#btn_reset').prop('disabled', disabled);
+    document.querySelectorAll('input[type=range],button')
+      .forEach(function(elm){
+        elm.disabled = disabled;
+      });
   }
   let _initialize = function() {
-    chrome.storage.local.get(_state, function(items){
-      $.extend(_state, items);
+    chrome.storage.local.get(_state.toData(), function(items){
+      _state = ChatState.of(items);
     });
-
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
       chrome.tabs.sendMessage(tabs[0].id, {action: 'visible'}, function(response){
         if (chrome.runtime.lastError) {
           console.log('error: ' + chrome.runtime.lastError.message);
-          $('#message').show();
+          document.getElementById('message').style.display = 'block';
           return;
         }
         _updateComponent(response.visible);
-        $('#content').show();
+        document.getElementById('content').style.display = 'block';
       });
     });
   }
   let _updateState = function(data) {
-    $.extend(_state, data);
+    _state = ChatState.of(data);
     _updateComponent();
-    chrome.storage.local.set(_state, function(){});
+    chrome.storage.local.set(_state.toData(), function(){});
+  }
+  let _styleValues = function() {
+    return _state.toCssStyle();
   }
   return {
     initialize: _initialize,
     updateState: _updateState,
     updateComponent: _updateComponent,
-    state: _state,
+    styleValues: _styleValues,
   }
 }());
 
-$(function() {
+function callback() {
   ycoPopup.initialize();
 
-  $('#btn_show').on('click', function(e) {
+  document.getElementById('btn_show').addEventListener('click', function(e) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      var params = $.extend({}, ycoPopup.state, {action: 'show'});
+      var params = ycoPopup.styleValues();
+      params.action = 'show';
       chrome.tabs.sendMessage(
         tabs[0].id,
         params,
@@ -95,7 +81,8 @@ $(function() {
       );
     });
   });
-  $('#btn_revart').on('click', function(e) {
+
+  document.getElementById('btn_revart').addEventListener('click', function(e) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
       chrome.tabs.sendMessage(
         tabs[0].id,
@@ -106,22 +93,33 @@ $(function() {
       );
     });
   });
-  $('#range_left,#range_top,#range_opacity').on('input', function(e) {
-    var data = {
-      top: $('#range_top').val() * 1,
-      left: $('#range_left').val() * 1,
-      opacity: $('#range_opacity').val() * 1
-    };
-    ycoPopup.updateState(data);
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      var params = $.extend({}, ycoPopup.state, {action: 'update'});
-      chrome.tabs.sendMessage(
-        tabs[0].id,
-        params,
-        function(response) {
-          ycoPopup.updateComponent(response.visible);
-        }
-      );
+
+  document.querySelectorAll('#range_left,#range_top,#range_opacity')
+    .forEach(function(range) {
+      range.addEventListener('input', function(e) {
+      var data = {
+        left: document.getElementById('range_left').value * 1,
+        top: document.getElementById('range_top').value * 1,
+        opacity: document.getElementById('range_opacity').value * 1
+      };
+      ycoPopup.updateState(data);
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+        var params = ycoPopup.styleValues();
+        params.action = 'update';
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          params,
+          function(response) {
+            ycoPopup.updateComponent(response.visible);
+          }
+        );
+      });
     });
   });
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', callback);
+} else {
+  callback();
+}

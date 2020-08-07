@@ -1,48 +1,48 @@
 import '../scss/content.scss';
-import jQuery from 'jquery';
 
-const status = {
-  VISIBLE: 1,
-  HIDDEN: 0,
-  NONE: -1
-};
+import {overlayState} from './modules.js';
 
 var ycoContent = ycoContent || {};
 
 ycoContent = (function(){
-  console.log('---- Chat Overlay loaded ----')
-
+  console.log('---- Chat Overlay loaded ----');
   const CHAT_SELECTOR = 'ytd-live-chat-frame#chat';
   const OVERLAY_CLASS = 'yco-overlay';
 
-  let _convertStyle = function(request) {
-    let state = {
-      top: request.top + 'px',
-      left: request.left + 'px',
-      opacity: request.opacity,
-    };
+  let _styleValues = function(request) {
+    let state = '';
+    for (const [key, val] of Object.entries(request)) {
+      if (`${key}` !== 'action') {
+        state = state + `${key}:${val};`;
+      }
+    }
     return state;
   }
+  let _chatElement = function() {
+    return document.querySelector(CHAT_SELECTOR);
+  }
   let _visibled = function() {
-    if ($(CHAT_SELECTOR) && $(CHAT_SELECTOR).length == 1) {
-      return $(CHAT_SELECTOR).hasClass(OVERLAY_CLASS) === true ? status.VISIBLE : status.HIDDEN;
+    const elm = _chatElement();
+    if (elm) {
+      return elm.classList.contains(OVERLAY_CLASS) === true ? overlayState.VISIBLE : overlayState.HIDDEN;
     }
-    return status.NONE;
+    return overlayState.NONE;
   }
   let _show = function(request) {
-    if (_visibled() === status.HIDDEN) {
-      $(CHAT_SELECTOR).addClass(OVERLAY_CLASS);
+    if (_visibled() === overlayState.HIDDEN) {
+      _chatElement().classList.add(OVERLAY_CLASS);
       _update(request);
     }
   }
   let _hide = function() {
-    if (_visibled() === status.VISIBLE) {
-      $(CHAT_SELECTOR).removeClass(OVERLAY_CLASS).css('opacity', '');
+    if (_visibled() === overlayState.VISIBLE) {
+      _chatElement().classList.remove(OVERLAY_CLASS);
+      _chatElement().setAttribute("style", "opacity:''");
     }
   }
   let _update = function(request) {
-    let state = _convertStyle(request);
-    $(CHAT_SELECTOR).css(state);
+    const values = _styleValues(request);
+    _chatElement().setAttribute("style", values);
   }
   return {
     isVisibled: _visibled,
@@ -63,10 +63,10 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
   }
   if (action == 'show') {
     ycoContent.show(request);
-    sendResponse({visible: status.VISIBLE});
+    sendResponse({visible: overlayState.VISIBLE});
   }
   if (action == 'hidden') {
     ycoContent.hide();
-    sendResponse({visible: status.HIDDEN});
+    sendResponse({visible: overlayState.HIDDEN});
   }
 });

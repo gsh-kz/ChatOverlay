@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack:///./src/scss/content.scss"],"names":[],"mappings":"AACA,aACE,YACA,kB","file":"css/content.css","sourcesContent":["\n.yco-overlay {\n  width: 400px;\n  position: absolute;\n}\n"],"sourceRoot":""}
